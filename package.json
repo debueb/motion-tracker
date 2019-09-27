@@ -4,7 +4,8 @@
   "description": "A software based detection module for the Raspberry Pi camera",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "engines": {
     "node": "6.11.0",
@@ -43,8 +44,10 @@
     "config": "^1.26.1",
     "date-fns": "^2.3.0",
     "dotenv": "^8.1.0",
+    "fluent-ffmpeg": "^2.1.2",
     "jimp": "^0.2.28",
     "node-telegram-bot-api": "^0.30.0",
-    "pi-camera": "^1.0.1"
+    "pi-camera": "^1.0.1",
+    "rimraf": "^3.0.0"
   }
 }
