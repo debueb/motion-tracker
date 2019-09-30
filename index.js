@@ -44,22 +44,36 @@ const motionDetector = new MotionDetectionModule({
   imagePath,
   videoPath,
   captureVideoOnMotion: true,
-  continueAfterMotion: true,
 });
 
-motionDetector.on('imageRecorded', (filename) => {
+const imageToMedia = (image) => ({
+  media: fs.createReadStream(path.resolve(imagePath, image)),
+  fileName: image,
+  contentType: 'image/jpeg',
+});
+
+motionDetector.on('motionDetected', (firstImage, secondImage, video, diffPercent) => {
   if (sendNotifications) {
     chatIds.forEach((chatId) => {
-      bot.sendPhoto(chatId, fs.createReadStream(path.resolve(imagePath, filename)), { caption: filename });
+      // bot.sendPhoto(chatId, fs.createReadStream(path.resolve(imagePath, filename)), { caption: filename });
+      // bot.sendChatAction(chatId, 'record_video');
+      bot.sendMessage(chatId, `Detected ${ diffPercent * 100 }% movement`);
       bot.sendChatAction(chatId, 'record_video');
-    });
-  }
-});
+      const medias = [
+        imageToMedia(firstImage),
+        imageToMedia(secondImage),
+      ];
 
-motionDetector.on('videoRecorded', (filename) => {
-  if (sendNotifications) {
-    chatIds.forEach((chatId) => {
-      bot.sendVideo(chatId, fs.createReadStream(path.resolve(videoPath, filename)), { caption: filename });
+      if (video) {
+        medias.push({
+          media: fs.createReadStream(path.resolve(videoPath, video)),
+          fileName: video,
+          contentType: 'video/mp4',
+        });
+      }
+      bot.sendMediaGroup(chatId, medias).catch((error) => {
+        bot.sendMessage(chatId, error && error.toString ? error.toString() : 'an unkown error occured');
+      });
     });
   }
 });
