@@ -3,13 +3,13 @@
 module.exports = {
   camera: {
     photoTimeout: 1000,
-    photoWidth: 100,
-    photoHeight: 100,
+    photoWidth: 800,
+    photoHeight: 600,
 
     videoTimeout: 5000,
-    videoWidth: 1920,
-    videoHeight: 1080,
+    videoWidth: 1280,
+    videoHeight: 720,
 
-    compareThreshold: 0.1,
+    compareThreshold: 0.2,
   },
 };
