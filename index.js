@@ -47,17 +47,16 @@ const motionDetector = new MotionDetector({
 });
 
 const imageToMedia = (image) => ({
+  type: 'photo',
+  // caption: diffPercent ? diffPercent : image,
   media: fs.createReadStream(path.resolve(imagePath, image)),
   fileName: image,
   contentType: 'image/jpeg',
 });
 
-motionDetector.on('motionDetected', (firstImage, secondImage, video, diffPercent) => {
+motionDetector.on('motionDetected', (firstImage, secondImage, video, diff) => {
   if (sendNotifications) {
     chatIds.forEach((chatId) => {
-      // bot.sendPhoto(chatId, fs.createReadStream(path.resolve(imagePath, filename)), { caption: filename });
-      // bot.sendChatAction(chatId, 'record_video');
-      bot.sendMessage(chatId, `Detected ${ diffPercent * 100 }% movement`);
       bot.sendChatAction(chatId, 'record_video');
       const medias = [
         imageToMedia(firstImage),
@@ -66,6 +65,7 @@ motionDetector.on('motionDetected', (firstImage, secondImage, video, diffPercent
 
       if (video) {
         medias.push({
+          type: 'video',
           media: fs.createReadStream(path.resolve(videoPath, video)),
           fileName: video,
           contentType: 'video/mp4',
@@ -74,6 +74,7 @@ motionDetector.on('motionDetected', (firstImage, secondImage, video, diffPercent
       bot.sendMediaGroup(chatId, medias).catch((error) => {
         bot.sendMessage(chatId, error && error.toString ? error.toString() : 'an unkown error occured');
       });
+      bot.sendMessage(chatId, `Motion detected: ${ diff.percent }`);
     });
   }
 });
