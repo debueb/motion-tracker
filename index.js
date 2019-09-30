@@ -2,7 +2,7 @@ process.env.NTBA_FIX_319 = 1;
 process.env.NTBA_FIX_350 = 1;
 
 const path = require('path');
-const MotionDetectionModule = require('./lib/MotionDetectionModule');
+const MotionDetector = require('./lib/MotionDetector');
 const TelegramBot = require('node-telegram-bot-api');
 const ChatStore = require('./lib/ChatStore');
 const HouseKeeper = require('./lib/HouseKeeper');
@@ -40,7 +40,7 @@ new HouseKeeper([
 
 let sendNotifications = true;
 
-const motionDetector = new MotionDetectionModule({
+const motionDetector = new MotionDetector({
   imagePath,
   videoPath,
   captureVideoOnMotion: true,
@@ -96,7 +96,6 @@ bot.on('message', (msg) => {
 chatStore.on('chatIdsUpdated', (newChatIds) => {
   chatIds = newChatIds;
 });
-
 
 // send list of videos to pick from
 bot.onText(/^(\/)?images$/, (msg) => {
@@ -188,5 +187,10 @@ bot.onText(/^(\/)?stop$/, (msg) => {
 });
 
 bot.onText(/^(\/)?threshhold$/, (msg) => {
-  bot.sendMessage(msg.chat.id, 'threshhold not implemented yet');
+  bot.sendMessage(msg.chat.id, `Current threshhold is ${ motionDetector.threshhold }`);
+});
+
+bot.onText(/^(\/)?threshhold (.*)$/, (msg, match) => {
+  motionDetector.threshhold = parseFloat(match[2]) || motionDetector.threshhold;
+  bot.sendMessage(msg.chat.id, `Threshhold changed to ${ motionDetector.threshhold } `);
 });
