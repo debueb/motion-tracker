@@ -30,11 +30,11 @@ fs.mkdirSync(videoPath);
 new HouseKeeper([
   {
     path: imagePath,
-    maxFiles: 50,
+    maxFiles: 10,
   },
   {
     path: videoPath,
-    maxFiles: 50,
+    maxFiles: 10,
   },
 ]).init();
 
@@ -172,20 +172,24 @@ bot.onText(/^(\/)?video (.*)/, (msg, match) => {
 });
 
 bot.onText(/^(\/)?start$/, (msg) => {
-  this.motionDetector.start();
-  bot.sendMessage(msg.chat.id, 'Motion notification started');
+  motionDetector.start();
+  bot.sendMessage(msg.chat.id, 'Motion tracking started');
 });
 
 bot.onText(/^(\/)?stop$/, (msg) => {
-  this.motionDetector.stop();
-  bot.sendMessage(msg.chat.id, 'Motion notification stopped');
+  motionDetector.stop();
+  bot.sendMessage(msg.chat.id, 'Motion tracking stopped');
 });
 
-bot.onText(/^(\/)?threshhold$/, (msg) => {
-  bot.sendMessage(msg.chat.id, `Current threshhold is ${ motionDetector.threshhold }`);
+bot.onText(/^(\/)?status$/, (msg) => {
+  bot.sendMessage(msg.chat.id, motionDetector.status() ? 'Motion tracking active' : 'Motion tracking inactive');
 });
 
 bot.onText(/^(\/)?threshhold (.*)$/, (msg, match) => {
   motionDetector.threshhold = parseFloat(match[2]) || motionDetector.threshhold;
   bot.sendMessage(msg.chat.id, `Threshhold changed to ${ motionDetector.threshhold } `);
+});
+
+bot.onText(/^(\/)?threshhold$/, (msg) => {
+  bot.sendMessage(msg.chat.id, `Current threshhold is ${ motionDetector.threshhold }`);
 });
