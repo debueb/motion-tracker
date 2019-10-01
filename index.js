@@ -38,8 +38,6 @@ new HouseKeeper([
   },
 ]).init();
 
-let sendNotifications = true;
-
 const motionDetector = new MotionDetector({
   imagePath,
   videoPath,
@@ -55,36 +53,32 @@ const imageToMedia = (image) => ({
 });
 
 motionDetector.on('motionDetected', (firstImage, secondImage, video, diff) => {
-  if (sendNotifications) {
-    chatIds.forEach((chatId) => {
-      bot.sendChatAction(chatId, 'record_video');
-      const medias = [
-        imageToMedia(firstImage),
-        imageToMedia(secondImage),
-      ];
+  chatIds.forEach((chatId) => {
+    bot.sendChatAction(chatId, 'record_video');
+    const medias = [
+      imageToMedia(firstImage),
+      imageToMedia(secondImage),
+    ];
 
-      if (video) {
-        medias.push({
-          type: 'video',
-          media: fs.createReadStream(path.resolve(videoPath, video)),
-          fileName: video,
-          contentType: 'video/mp4',
-        });
-      }
-      bot.sendMediaGroup(chatId, medias).catch((error) => {
-        bot.sendMessage(chatId, error && error.toString ? error.toString() : 'an unkown error occured');
+    if (video) {
+      medias.push({
+        type: 'video',
+        media: fs.createReadStream(path.resolve(videoPath, video)),
+        fileName: video,
+        contentType: 'video/mp4',
       });
-      bot.sendMessage(chatId, `Motion detected: ${ diff.percent }`);
+    }
+    bot.sendMediaGroup(chatId, medias).catch((error) => {
+      bot.sendMessage(chatId, error && error.toString ? error.toString() : 'an unkown error occured');
     });
-  }
+    bot.sendMessage(chatId, `Motion detected: ${ diff.percent }`);
+  });
 });
 
 motionDetector.on('error', (error) => {
-  if (sendNotifications) {
-    chatIds.forEach((chatId) => {
-      bot.sendMessage(chatId, error && error.toString ? error.toString() : 'an unkown error occured');
-    });
-  }
+  chatIds.forEach((chatId) => {
+    bot.sendMessage(chatId, error && error.toString ? error.toString() : 'an unkown error occured');
+  });
 });
 
 motionDetector.watch();
@@ -178,12 +172,12 @@ bot.onText(/^(\/)?video (.*)/, (msg, match) => {
 });
 
 bot.onText(/^(\/)?start$/, (msg) => {
-  sendNotifications = true;
+  this.motionDetector.start();
   bot.sendMessage(msg.chat.id, 'Motion notification started');
 });
 
 bot.onText(/^(\/)?stop$/, (msg) => {
-  sendNotifications = false;
+  this.motionDetector.stop();
   bot.sendMessage(msg.chat.id, 'Motion notification stopped');
 });
 
