@@ -45,7 +45,7 @@
     "date-fns": "^2.3.0",
     "dotenv": "^8.1.0",
     "fluent-ffmpeg": "^2.1.2",
-    "jimp": "^0.2.28",
+    "jimp": "^0.22.7",
     "node-telegram-bot-api": "^0.30.0",
     "pi-camera": "^1.0.1",
     "rimraf": "^3.0.0"
